@@ -9,5 +9,5 @@ socket.on('disconnect', () => {
 })
 
 socket.on('newMessage', (msg) => {
-    console.log('There is new message for you', msg)
+    console.log('New message', msg)
 })
