@@ -15,15 +15,13 @@ app.use(express.static(publicPath)) //configuring the middleware
 io.on('connection', (socket) => {
     console.log('New user connected')
 
-    socket.emit('newMessage',{
-        from: 'John',
-        text: 'Hey! What is going on?',
-        createdAt: 123
-
-    })
-
     socket.on('createMessage', (msg) => {
         console.log('createMessage', msg)
+        io.emit('newMessage', {
+            from: msg.from,
+            text: msg.text,
+            createdAt: new Date().getTime()
+        })
     })
 
     socket.on('disconnect', () => {
