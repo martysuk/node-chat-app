@@ -10,7 +10,7 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 
-const {generateMessage} = require('./utils/message')
+const {generateMessage, generateLocationMessage} = require('./utils/message')
 
 app.use(express.static(publicPath)) //configuring the middleware
 
@@ -31,6 +31,10 @@ io.on('connection', (socket) => {
         //     text: msg.text,
         //     createdAt: new Date().getTime()
         // })
+    })
+
+    socket.on('createLocationMessage', (coords) => {
+        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude))
     })
 
     socket.on('disconnect', () => {
