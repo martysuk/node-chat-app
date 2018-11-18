@@ -10,9 +10,9 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 
-const {generateMessage, generateLocationMessage} = require('./utils/message')
-const {isRealString} = require('./utils/validation')
-const {Users} = require('./utils/users')
+const { generateMessage, generateLocationMessage } = require('./utils/message')
+const { isRealString } = require('./utils/validation')
+const { Users } = require('./utils/users')
 
 let users = new Users()
 
@@ -24,7 +24,7 @@ io.on('connection', (socket) => {
 
 
     socket.on('join', (params, callback) => {
-        if(!isRealString(params.name) || !isRealString(params.room)){
+        if (!isRealString(params.name) || !isRealString(params.room)) {
             return callback('Name and room name are required.')
         }
         socket.join(params.room)//socket.leave(param.room)
@@ -42,8 +42,10 @@ io.on('connection', (socket) => {
     })
 
     socket.on('createMessage', (msg, callback) => {
-        console.log('createMessage', msg)
-        io.emit('newMessage', generateMessage(msg.from, msg.text))
+        let user = users.getUser(socket.id)
+        if (user && isRealString(msg.text)) {
+            io.to(user.room).emit('newMessage', generateMessage(user.name, msg.text))
+        }
         callback() //callback('This is from the server')
 
         // socket.broadcast.emit('newMessage', {
@@ -54,13 +56,16 @@ io.on('connection', (socket) => {
     })
 
     socket.on('createLocationMessage', (coords) => {
-        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude))
+        let user = users.getUser(socket.id)
+        if (user) {
+            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude))
+        }
     })
 
     socket.on('disconnect', () => {
         console.log('User was disconnected')
         let user = users.removeUser(socket.id)
-        if(user){
+        if (user) {
             io.to(user.room).emit('updateUserList', users.getUserList(user.room))
             io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`))
         }
