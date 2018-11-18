@@ -22,6 +22,12 @@ class Users {
         let namesArr = users.map((user) => user.name)
         return namesArr
     }
+    checkIfUserExist(name,room){
+        let users = this.getUserList(room)
+        if(users.indexOf(name) > -1){
+            return true
+        }
+    }
 }
 
 module.exports = {Users}

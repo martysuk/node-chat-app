@@ -27,6 +27,9 @@ io.on('connection', (socket) => {
         if (!isRealString(params.name) || !isRealString(params.room)) {
             return callback('Name and room name are required.')
         }
+        if(users.checkIfUserExist(params.name, params.room)){
+            return callback(`User ${params.name} already exists at this room`)
+        }
         socket.join(params.room)//socket.leave(param.room)
         users.removeUser(socket.id)
         users.addUser(socket.id, params.name, params.room)
